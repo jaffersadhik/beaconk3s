@@ -1,0 +1,17 @@
+server: https://192.168.1.168:6443
+token: K1092bf00e9412f3df1fc8067620cdd13d49875a3e35dea73dacc9e600e4d2e416b::server:19102d4a95c31b10f59ef5a06ab7ee3b
+
+
+with-node-id: false
+
+disable-apiserver-lb: true
+# Optional: Add node labels
+node-label:
+  - "env=production"
+  - "region=us-west"
+
+# Optional: Configure node taints
+node-taint:
+  - "node-role.kubernetes.io/worker=true:NoExecute"
+
+

@@ -1,0 +1,5 @@
+mirrors:
+  "dk-reg.mas:5000":  # Your registry address
+    endpoint:
+      - "http://dk-reg.mas:5000"  # Use HTTP instead of HTTPS
+
