@@ -1,0 +1,26 @@
+version: '3.3'
+
+services:
+  k3s-server:
+    image: dk-reg.mas:5000/rancher/k3s:v1.31.0-k3s1
+    restart: always
+    container_name: k3s-server
+    networks:
+      - k3s-net 
+    environment:
+      K3S_EXTRA_ARGS: "--tls-san 192.168.1.168"
+    privileged: true
+    ports:
+      - 6443:6443
+      - 80:80
+    volumes:
+      - ./clusterdata:/var/lib/rancher/k3s
+      - ./etc/registries.yaml:/etc/rancher/k3s/registries.yaml
+      - /var/log:/var/log
+    command: server
+
+networks:
+  k3s-net:
+    driver: bridge
+
+
