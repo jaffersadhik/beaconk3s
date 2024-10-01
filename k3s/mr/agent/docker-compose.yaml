@@ -4,6 +4,8 @@ services:
   k3s-agent:
     image: dk-reg.mas:5000/rancher/k3s:v1.31.0-k3s1
     hostname: middleware167
+    ports:
+      - "32000:32000" 
     restart: always
     container_name: k3s-agent
     networks:
