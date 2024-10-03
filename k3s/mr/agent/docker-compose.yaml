@@ -3,10 +3,11 @@ version: '3.3'
 services:
   k3s-agent:
     image: dk-reg.mas:5000/rancher/k3s:v1.31.0-k3s1
-    hostname: middleware177
+    hostname: middleware166
     ports:
       - "32000:32000"
       - "32001:32001"
+      - "32002:32002"
     restart: always
     container_name: k3s-agent
     networks:
