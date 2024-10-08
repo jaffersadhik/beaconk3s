@@ -2,10 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ic-deployment
+  namespace: router  # Add namespace
   labels:
     app: ic
 spec:
-  replicas: 2  # Number of replicas
+  replicas: 12  # Number of replicas
   selector:
     matchLabels:
       app: ic
@@ -21,22 +22,9 @@ spec:
         operator: "Equal"
         value: "true"
         effect: "NoExecute"  # Update to NoExecute to match the taint on the node
-      initContainers:
-      - name: modify-hosts
-        image: 192.168.1.168:5000/busynbox:1
-        command:
-          - sh
-          - -c
-          - |
-            echo "192.168.1.115 115_Kafka_1" >> /etc/custom_hosts &&
-            echo "192.168.1.116 116_Kafka_2" >> /etc/custom_hosts &&
-            echo "192.168.1.117 117_Kafka_3" >> /etc/custom_hosts
-        volumeMounts:
-        - name: hosts-volume
-          mountPath: /etc
       containers:
       - name: ic
-        image: 192.168.1.168:5000/beacon:01oct2024B
+        image: 192.168.1.168:5000/beacon:05oct2024E1
         ports:
         - containerPort: 20000
         resources:
@@ -74,6 +62,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: ic-service
+  namespace: router  # Add namespace
 spec:
   type: NodePort
   selector:
@@ -85,21 +74,3 @@ spec:
       nodePort: 32000     # External port on the node
 
 ---
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: ic-network-policy
-spec:
-  podSelector:
-    matchLabels:
-      app: ic
-  policyTypes:
-  - Ingress
-  ingress:
-  - from:
-    - namespaceSelector: {}  # Allow traffic from all namespaces, adjust based on security needs
-    ports:
-    - protocol: TCP
-      port: 20000
-
-
