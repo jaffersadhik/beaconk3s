@@ -1,32 +1,33 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ic-deployment
-  namespace: router  # Add namespace
+  name: http-deployment
+  namespace: http  # Add namespace
   labels:
-    app: ic
+    app: http
 spec:
   replicas: 1  # Number of replicas
   selector:
     matchLabels:
-      app: ic
+      app: http
   template:
     metadata:
       labels:
-        app: ic
+        app: http
     spec:
       nodeSelector:
-        nodegroup: router  # Ensure pods run on nodes labeled with "nodegroup=middleware"
+        group: http  # Ensure pods run on nodes labeled with "nodegroup=middleware"
       tolerations:
       - key: "node-role.kubernetes.io/worker"
         operator: "Equal"
         value: "true"
         effect: "NoExecute"  # Update to NoExecute to match the taint on the node
       containers:
-      - name: ic
-        image: 192.168.1.168:5000/beacon:23oct2024D
+      - name: http
+        image: 192.168.1.168:5000/beaconwebear:23oct2024D
         ports:
         - containerPort: 20000
+        - containerPort: 8080
         resources:
           requests:
             memory: "2Gi"
@@ -37,13 +38,13 @@ spec:
         - name: _JAVA_OPTIONS
           value: "-Xmx256m -Xms256m"
         - name: module
-          value: "ic"
+          value: "all"
         - name: hostip
           value: "192.168.1.168"
-        - name: segment
-          value: "chk3s"
         - name: profile
           value: "cat"
+        - name: segment
+          value: "chk3s"
         - name: NODE_HOSTNAME
           valueFrom:
             fieldRef:
@@ -54,16 +55,23 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: ic-service
-  namespace: router  # Add namespace
+  name: http-service
+  namespace: http  # Add namespace
 spec:
   type: NodePort
   selector:
-    app: ic
+    app: http
   ports:
     - protocol: TCP
       port: 20000        # Internal port of the service
       targetPort: 20000   # Container's port
-      nodePort: 32000     # External port on the node
+      nodePort: 32525     # External port on the node
+      name: promethious
+    - protocol: TCP
+      port: 8080       # Internal port of the service
+      targetPort: 8080   # Container's port
+      nodePort: 32101     # External port on the node
+      name: http
+   
 
 ---

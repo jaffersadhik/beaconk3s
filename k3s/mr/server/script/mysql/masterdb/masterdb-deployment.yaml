@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-pv
+  namespace: mastermysqldb
+spec:
+  capacity:
+    storage: 25Gi  # Adjust the storage capacity as needed
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: mysql-local-storage
+  local:
+    path: /home/mysqldata  # Adjust the local storage path on your node
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - mysqlnode165  # Specify the node where PV should be created
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+  namespace: mastermysqldb
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 25Gi  # Adjust as needed
+  storageClassName: mysql-local-storage
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: beaconmysqldb
+  namespace: mastermysqldb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: beaconmysqldb
+  template:
+    metadata:
+      labels:
+        app: beaconmysqldb
+    spec:
+      tolerations:
+      - key: "node-role.kubernetes.io/worker"
+        operator: "Exists"
+        effect: "NoExecute"
+      nodeSelector:
+        kubernetes.io/hostname: mysqlnode165  # Specify the node by its hostname
+      containers:
+      - name: beaconmysqldb
+        image: 192.168.1.168:5000/beaconmysqldb:1.0
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "root123"
+        - name: MYSQL_USER
+          value: "amapi"
+        - name: MYSQL_PASSWORD
+          value: "amapi123"
+        - name: MYSQL_DATABASE
+          value: "gw"
+        - name: TZ
+          value: "Asia/Kolkata"
+        - name: MYSQL_MAX_CONNECTIONS
+          value: "2000"
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: mysql-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-storage
+        persistentVolumeClaim:
+          claimName: mysql-pvc
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: beaconmysqldb
+  namespace: mastermysqldb
+spec:
+  type: NodePort
+  ports:
+    - port: 3306
+      targetPort: 3306
+      nodePort: 30001
+  selector:
+    app: beaconmysqldb
+

@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zookeeper
+  namespace: kafka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zookeeper
+  template:
+    metadata:
+      labels:
+        app: zookeeper
+    spec:
+      tolerations:
+      - key: "node-role.kubernetes.io/worker"
+        operator: "Exists"
+        effect: "NoExecute"
+      nodeSelector:
+        kubernetes.io/hostname: kafkanode166 # Specify the node by its hostname
+      containers:
+      - name: zookeeper
+        image: bitnami/zookeeper:latest
+        ports:
+        - containerPort: 2181
+        env:
+        - name: ALLOW_ANONYMOUS_LOGIN
+          value: "yes"
+        volumeMounts:
+        - name: zookeeper-storage
+          mountPath: /bitnami/zookeeper
+      volumes:
+      - name: zookeeper-storage
+        persistentVolumeClaim:
+          claimName: zookeeper-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper
+  namespace: kafka
+spec:
+  selector:
+    app: zookeeper
+  ports:
+    - protocol: TCP
+      port: 2181
+      targetPort: 2181
+      nodePort: 30080 # NodePort for Kafka Node 1
+  type: NodePort
+

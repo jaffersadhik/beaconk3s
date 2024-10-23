@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rdg-deployment
+  labels:
+    app: rdg
+spec:
+  replicas: 1  # Number of replrdgas
+  selector:
+    matchLabels:
+      app: rdg
+  template:
+    metadata:
+      labels:
+        app: rdg
+    spec:
+      containers:
+      - name: rdg
+        image: 192.168.1.168:5000/beacon:23oct2024
+        ports:
+        - containerPort: 20000
+        env:
+        - name: id
+          value: "1"
+        - name: _JAVA_OPTIONS
+          value: "-Xmx256m -Xms256m"
+        - name: module
+          value: "redisdatagenerator"
+        - name: hostip
+          value: "192.168.1.168"
+        - name: segment
+          value: "chk3s"
+        - name: profile
+          value: "cat"
+        - name: NODE_HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+

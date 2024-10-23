@@ -1,0 +1,37 @@
+# redis-accountsync-pv.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: redis-msgid-pv
+  namespace: redis
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: redis-msgid-storage
+  local:
+    path: /home/redisdata/msgidredis  # Adjust this to the path on your node
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - redisnode177  # Specify the node where PV should be created
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-msgid-pvc
+  namespace: redis
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: redis-msgid-storage
+
