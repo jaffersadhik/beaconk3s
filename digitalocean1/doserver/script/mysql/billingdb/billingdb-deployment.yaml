@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-billing-pv
+  namespace: mysql
+spec:
+  capacity:
+    storage: 60Gi  # Adjust the storage capacity as needed
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: mysql-billing-local-storage
+  local:
+    path: /home/mysqldata/billingdata  # Adjust the local storage path on your node
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - billingmysql3  # Specify the node where PV should be created
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-billing-pvc
+  namespace: mysql
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 25Gi  # Adjust as needed
+  storageClassName: mysql-billing-local-storage
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: billingmysqldb
+  namespace: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: billingmysqldb
+  template:
+    metadata:
+      labels:
+        app: billingmysqldb
+    spec:
+      tolerations:
+      - key: "node-role.kubernetes.io/worker"
+        operator: "Exists"
+        effect: "NoExecute"
+      nodeSelector:
+        kubernetes.io/hostname: billingmysql3  # Specify the node by its hostname
+      containers:
+      - name: billingmysqldb
+        image: mysql:8.0.34
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "root123"
+        - name: MYSQL_USER
+          value: "amapi"
+        - name: MYSQL_PASSWORD
+          value: "amapi123"
+        - name: MYSQL_DATABASE
+          value: "gw"
+        - name: TZ
+          value: "Asia/Kolkata"
+        - name: MYSQL_MAX_CONNECTIONS
+          value: "2000"
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: mysql-billing-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-billing-storage
+        persistentVolumeClaim:
+          claimName: mysql-billing-pvc
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: billingmysqldb
+  namespace: mysql
+spec:
+  type: NodePort
+  ports:
+    - port: 3306
+      targetPort: 3306
+      nodePort: 30011
+  selector:
+    app: billingmysqldb
+

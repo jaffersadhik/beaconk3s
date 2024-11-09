@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smppinterface-deployment
+  namespace: smppinterface  # Add namespace
+  labels:
+    app: smppinterface
+spec:
+  replicas: 4  # Number of replicas
+  selector:
+    matchLabels:
+      app: smppinterface
+  template:
+    metadata:
+      labels:
+        app: smppinterface
+    spec:
+      nodeSelector:
+        nodegroup: smppinterface  # Ensure pods run on nodes labeled with "nodegroup=middleware"
+      tolerations:
+      - key: "node-role.kubernetes.io/worker"
+        operator: "Equal"
+        value: "true"
+        effect: "NoExecute"  # Update to NoExecute to match the taint on the node
+      containers:
+      - name: smppinterface
+        image: 192.168.1.168:5000/beacon:07oct2024
+        ports:
+        - containerPort: 20000
+        - containerPort: 2775
+        - containerPort: 2999
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1"
+          limits:
+            cpu: "4"
+            memory: "3Gi"
+        env:
+        - name: id
+          value: "1"
+        - name: _JAVA_OPTIONS
+          value: "-Xmx256m -Xms256m"
+        - name: module
+          value: "smppinterface"
+        - name: modvalue
+          value: "0,1,2,3"
+        - name: cluster.names
+          value: "trans,bulk,otp"
+        - name: concat.redis.index
+          value: "0,1,2,3"
+        - name: cluster
+          value: "trans,bulk,otp"
+        - name: hostip
+          value: "192.168.1.168"
+        - name: segment
+          value: "chk3s"
+        - name: NODE_HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: smppinterface-service
+  namespace: smppinterface  # Add namespace
+spec:
+  type: NodePort
+  selector:
+    app: smppinterface
+  ports:
+    - name: port-20000
+      protocol: TCP
+      port: 20000        # Internal port of the service
+      targetPort: 20000   # Container's port
+      nodePort: 32004 
+    - name: port-2775
+      protocol: TCP
+      port: 2775        # Internal port of the service
+      targetPort: 2775   # Container's port
+      nodePort: 31775     # External port on the node
+    - name: port-2999
+      protocol: TCP
+      port: 2999        # Internal port of the service
+      targetPort: 2999   # Container's port
+      nodePort: 31999     # External port on the node

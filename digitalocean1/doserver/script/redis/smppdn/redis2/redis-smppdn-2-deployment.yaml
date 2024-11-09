@@ -1,0 +1,50 @@
+# redis-accountsync-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-smppdn-2-deployment
+  namespace: redis
+  labels:
+    app: redis-smppdn-2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-smppdn-2
+  template:
+    metadata:
+      labels:
+        app: redis-smppdn-2
+    spec:
+      tolerations:
+      - key: "node-role.kubernetes.io/worker"
+        operator: "Exists"
+        effect: "NoExecute"
+      nodeSelector:
+        kubernetes.io/hostname: redis6 # Specify the node by its hostname
+      containers:
+      - name: redis-smppdn-2
+        image: 10.122.0.2:5000/redis:6.0-alpine3.12
+        ports:
+        - containerPort: 6379
+        volumeMounts:
+        - name: redis-storage
+          mountPath: /data
+      volumes:
+      - name: redis-storage
+        persistentVolumeClaim:
+          claimName: redis-smppdn-2-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-smppdn-2-service
+  namespace: redis
+spec:
+  type: NodePort
+  ports:
+    - port: 6379
+      targetPort: 6379
+      nodePort: 30022
+  selector:
+    app: redis-smppdn-2

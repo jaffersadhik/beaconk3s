@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smppconcatehandover-deployment
+  namespace: singleton  # Add namespace
+  labels:
+    app: singleton
+spec:
+  replicas: 1  # Number of replicas
+  selector:
+    matchLabels:
+      app: smppconcatehandover
+  template:
+    metadata:
+      labels:
+        app: smppconcatehandover
+    spec:
+      nodeSelector:
+        nodegroup: singleton  # Ensure pods run on nodes labeled with "nodegroup=middleware"
+      tolerations:
+      - key: "node-role.kubernetes.io/worker"
+        operator: "Equal"
+        value: "true"
+        effect: "NoExecute"  # Update to NoExecute to match the taint on the node
+      containers:
+      - name: smppconcatehandover
+        image: 192.168.1.168:5000/beacon:07oct2024
+        ports:
+        - containerPort: 20000
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1"
+        env:
+        - name: id
+          value: "1"
+        - name: _JAVA_OPTIONS
+          value: "-Xmx256m -Xms256m"
+        - name: module
+          value: "smppconcatehandover"
+        - name: modvalue
+          value: "0,1,2,3"
+        - name: cluster.names
+          value: "trans,bulk,otp"
+        - name: concat.redis.index
+          value: "0,1,2,3"
+        - name: cluster
+          value: "trans,bulk,otp"
+        - name: hostip
+          value: "192.168.1.168"
+        - name: segment
+          value: "chk3s"
+        - name: NODE_HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: smppconcatehandover-service
+  namespace: singleton  # Add namespace
+spec:
+  type: NodePort
+  selector:
+    app: smppconcatehandover
+  ports:
+    - protocol: TCP
+      port: 20000        # Internal port of the service
+      targetPort: 20000   # Container's port
+      nodePort: 32008    # External port on the node
+

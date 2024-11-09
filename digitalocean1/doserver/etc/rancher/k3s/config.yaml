@@ -1,0 +1,27 @@
+# /etc/rancher/k3s/config.yaml
+
+# Specify the server's advertise address
+advertise-address: "10.122.0.2"
+
+# Enable the API server to listen on all interfaces
+tls-san:
+  - "0.0.0.0"
+  - "10.122.0.2"
+
+
+# Enable specific features or plugins
+kube-apiserver-arg:
+  - "enable-admission-plugins=NodeRestriction"
+  - "authorization-mode=AlwaysAllow"
+
+# Configure etcd or other storage options if needed
+datastore:
+  endpoint: "sqlite:///var/lib/rancher/k3s/data.db"
+
+# Set the cluster domain and network options if needed
+cluster-domain: "cluster.local"
+cni: "flannel"
+
+# Specify additional options or configurations
+write-kubeconfig-mode: "0644"
+

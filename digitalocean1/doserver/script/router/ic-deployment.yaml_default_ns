@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ic-deployment
+  labels:
+    app: ic
+spec:
+  replicas: 4  # Number of replicas
+  selector:
+    matchLabels:
+      app: ic
+  template:
+    metadata:
+      labels:
+        app: ic
+    spec:
+      nodeSelector:
+        nodegroup: middleware  # Ensure pods run on nodes labeled with "nodegroup=middleware"
+      tolerations:
+      - key: "node-role.kubernetes.io/worker"
+        operator: "Equal"
+        value: "true"
+        effect: "NoExecute"  # Update to NoExecute to match the taint on the node
+      initContainers:
+      - name: modify-hosts
+        image: 192.168.1.168:5000/busynbox:1
+        command:
+          - sh
+          - -c
+          - |
+            echo "192.168.1.115 115_Kafka_1" >> /etc/custom_hosts &&
+            echo "192.168.1.116 116_Kafka_2" >> /etc/custom_hosts &&
+            echo "192.168.1.117 117_Kafka_3" >> /etc/custom_hosts
+        volumeMounts:
+        - name: hosts-volume
+          mountPath: /etc
+      containers:
+      - name: ic
+        image: 192.168.1.168:5000/beacon:01oct2024C
+        ports:
+        - containerPort: 20000
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1"
+          limits:
+            cpu: "4"
+            memory: "3Gi"
+        env:
+        - name: id
+          value: "1"
+        - name: _JAVA_OPTIONS
+          value: "-Xmx256m -Xms256m"
+        - name: module
+          value: "ic"
+        - name: hostip
+          value: "192.168.1.168"
+        - name: segment
+          value: "chk3s"
+        - name: NODE_HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        volumeMounts:
+        - name: hosts-volume
+          mountPath: /etc
+      volumes:
+      - name: hosts-volume
+        emptyDir: {}  # Use an empty directory as a volume
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ic-service
+spec:
+  type: NodePort
+  selector:
+    app: ic
+  ports:
+    - protocol: TCP
+      port: 20000        # Internal port of the service
+      targetPort: 20000   # Container's port
+      nodePort: 32000     # External port on the node
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ic-network-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: ic
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector: {}  # Allow traffic from all namespaces, adjust based on security needs
+    ports:
+    - protocol: TCP
+      port: 20000
+
+

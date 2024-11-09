@@ -1,0 +1,52 @@
+version: '3.3'
+
+services:
+  k3s-agent:
+    image: dk-reg.mas:5000/rancher/k3s:v1.31.0-k3s1
+    hostname: redis6
+    ports:
+      - "30011:30011"
+      - "30012:30012"
+      - "30013:30013"
+      - "30014:30014"
+      - "30015:30015"
+      - "30016:30016"
+      - "30017:30017"
+      - "30018:30018"
+      - "30019:30019"
+      - "30020:30020"
+      - "30021:30021"
+      - "30022:30022"
+      - "30023:30023"
+      - "30024:30024"
+      - "30025:30025"
+      - "30026:30026"
+      - "30027:30027"
+      - "30028:30028"
+      - "30029:30029"
+      - "30030:30030"
+      - "30031:30031"
+      - "30032:30032"
+      - "30033:30033"
+    restart: always
+    networks:
+      - k3s-net
+    privileged: true
+    volumes:
+      - ./etc/rancher/node/password:/etc/rancher/node/password 
+      - /etc/hosts:/etc/hosts
+      - ./agentdata:/var/lib/rancher/k3s
+      - /var/log:/var/log
+      - /usr/bin/curl:/usr/bin/curl
+      - ./etc/rancher/k3s/config.yaml:/etc/rancher/k3s/config.yaml
+      - ./etc/rancher/k3s/registries.yaml:/etc/rancher/k3s/registries.yaml
+      - ./etc/containerd/config.toml:/etc/containerd/config.toml
+      - './cert/ca.crt:/ca.crt'
+      - './cert/ca.crt:/etc/ssl/certs/ca.crt'
+      - '/home/redisdata:/home/redisdata'
+    command: agent
+networks:
+  k3s-net:
+    driver: bridge
+
+

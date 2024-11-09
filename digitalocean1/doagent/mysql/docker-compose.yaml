@@ -1,0 +1,32 @@
+version: '3.3'
+
+services:
+  k3s-agent:
+    image: dk-reg.mas:5000/rancher/k3s:v1.31.0-k3s1
+    hostname: mysql3
+    ports:
+      - "30001:30001"
+      - "31001:30011"
+    restart: always
+    networks:
+      - k3s-net
+    privileged: true
+    volumes:
+      - ./etc/rancher/node/password:/etc/rancher/node/password 
+      - /etc/hosts:/etc/hosts
+      - ./agentdata:/var/lib/rancher/k3s
+      - /var/log:/var/log
+      - /usr/bin/curl:/usr/bin/curl
+      - ./etc/rancher/k3s/config.yaml:/etc/rancher/k3s/config.yaml
+      - ./etc/rancher/k3s/registries.yaml:/etc/rancher/k3s/registries.yaml
+      - ./etc/containerd/config.toml:/etc/containerd/config.toml
+      - './cert/ca.crt:/ca.crt'
+      - './cert/ca.crt:/etc/ssl/certs/ca.crt'
+      - '/home/mysqldata/billingdata:/home/mysqldata/billingdata'
+      - '/home/mysqldata/masterdata:/home/mysqldata/masterdata'
+    command: agent
+networks:
+  k3s-net:
+    driver: bridge
+
+

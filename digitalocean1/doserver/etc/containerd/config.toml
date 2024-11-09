@@ -1,0 +1,4 @@
+[plugins."io.containerd.grpc.v1.cri".registry.configs."192.168.1.168:5000".tls]
+  ca_file = "/etc/containerd/certs.d/192.168.1.168:5000/ca.crt"
+
+
