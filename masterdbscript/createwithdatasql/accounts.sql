@@ -659,16 +659,16 @@ DROP TABLE IF EXISTS `prepaid_recharge`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `prepaid_recharge` (
-  `id` bigint(19) NOT NULL AUTO_INCREMENT,
-  `cli_id` bigint(18) NOT NULL,
-  `prev_balance` double(16,4) NOT NULL DEFAULT 0.0000,
-  `recharge_amount` double(16,4) NOT NULL,
-  `recharge_type` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0-Add to existing amount, 1-Add as a new amount, 2-Reset old amount',
-  `recharge_done_by` varchar(100) NOT NULL,
-  `recharge_date` date NOT NULL DEFAULT cast(current_timestamp() as date),
-  `recharge_time` datetime(3) NOT NULL DEFAULT current_timestamp(3),
-  `created_ts` datetime(3) DEFAULT current_timestamp(3),
-  `updated_ts` datetime(3) DEFAULT current_timestamp(3) ON UPDATE current_timestamp(3),
+  `id` BIGINT(19) NOT NULL AUTO_INCREMENT,
+  `cli_id` BIGINT(18) NOT NULL,
+  `prev_balance` DOUBLE(16,4) NOT NULL DEFAULT 0.0000,
+  `recharge_amount` DOUBLE(16,4) NOT NULL,
+  `recharge_type` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '0-Add to existing amount, 1-Add as a new amount, 2-Reset old amount',
+  `recharge_done_by` VARCHAR(100) NOT NULL,
+  `recharge_date` DATE NOT NULL DEFAULT (CURRENT_DATE),
+  `recharge_time` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  `created_ts` DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+  `updated_ts` DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -777,8 +777,6 @@ UNLOCK TABLES;
 /*!50003 SET character_set_client  = utf8mb4 */ ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'IGNORE_SPACE,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`appuser`@`localhost`*/ /*!50003 TRIGGER accounts.su_config_on_insert 
 AFTER insert
@@ -794,7 +792,6 @@ AFTER insert
 		'1',
 		'0') */;;
 DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
@@ -804,8 +801,6 @@ DELIMITER ;
 /*!50003 SET character_set_client  = utf8mb4 */ ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'IGNORE_SPACE,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`appuser`@`localhost`*/ /*!50003 TRIGGER accounts.su_config_on_update 
 AFTER update
@@ -821,7 +816,6 @@ AFTER update
 		'2',
 		'0') */;;
 DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
@@ -831,8 +825,6 @@ DELIMITER ;
 /*!50003 SET character_set_client  = utf8mb4 */ ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'IGNORE_SPACE,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`appuser`@`localhost`*/ /*!50003 TRIGGER accounts.su_config_on_delete 
 AFTER delete
@@ -848,7 +840,6 @@ AFTER delete
 		'3',
 		'0') */;;
 DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
@@ -1065,8 +1056,6 @@ UNLOCK TABLES;
 /*!50003 SET character_set_client  = utf8mb4 */ ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'IGNORE_SPACE,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`appuser`@`localhost`*/ /*!50003 TRIGGER accounts.user_config_on_insert 
 AFTER insert
@@ -1082,7 +1071,6 @@ AFTER insert
 		'1',
 		'0') */;;
 DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
@@ -1092,8 +1080,6 @@ DELIMITER ;
 /*!50003 SET character_set_client  = utf8mb4 */ ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'IGNORE_SPACE,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`appuser`@`localhost`*/ /*!50003 TRIGGER accounts.user_config_on_update 
 AFTER update
@@ -1109,7 +1095,6 @@ AFTER update
 		'2',
 		'0') */;;
 DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
@@ -1119,8 +1104,6 @@ DELIMITER ;
 /*!50003 SET character_set_client  = utf8mb4 */ ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'IGNORE_SPACE,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`appuser`@`localhost`*/ /*!50003 TRIGGER accounts.user_config_on_delete 
 AFTER delete
@@ -1136,7 +1119,6 @@ AFTER delete
 		'3',
 		'0') */;;
 DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
